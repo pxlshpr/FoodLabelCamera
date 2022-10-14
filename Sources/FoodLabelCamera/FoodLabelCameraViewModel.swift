@@ -6,7 +6,7 @@ import SwiftHaptics
 public typealias FoodLabelScanHandler = (ScanResult, UIImage) -> ()
 
 class FoodLabelCameraViewModel: ObservableObject {
-
+    
     /// Tweak this if needed, but these current values result in the least dropped frames with the quickest response time on the iPhone 13 Pro Max
     let MinimumTimeBetweenScans = 0.5
     let TimeBeforeFirstScan: Double = 0.5
@@ -16,11 +16,11 @@ class FoodLabelCameraViewModel: ObservableObject {
     @Published var boundingBox: CGRect? = nil
     @Published var didSetBestCandidate = false
     @Published var shouldDismiss = false
-
+    
     var scanTasks: [Task<ScanResult, Error>] = []
     var lastScanTime: CFAbsoluteTime? = nil
     var timeBetweenScans: Double
-
+    
     let foodLabelScanHandler: FoodLabelScanHandler
     
     init(foodLabelScanHandler: @escaping FoodLabelScanHandler) {
@@ -63,13 +63,21 @@ class FoodLabelCameraViewModel: ObservableObject {
             
             /// Now remove this task from the array to free up a slot for another task
             scanTasks.removeAll(where: { $0 == scanTask })
-
+            
             /// Grab the image from the `CMSampleBuffer` and process it
-            let image = sampleBuffer.image
+//            let image = sampleBuffer.image
+            
+            guard let image = UIImage().imageFromSampleBuffer(
+                sampleBuffer: sampleBuffer,
+                videoOrientation: .portrait
+            ) else {
+                fatalError("Couldn't get image")
+            }
+            
             await process(scanResult, for: image)
         }
     }
-
+    
     func process(_ scanResult: ScanResult, for image: UIImage) async {
         
         /// Add this result to the results set
@@ -77,7 +85,7 @@ class FoodLabelCameraViewModel: ObservableObject {
         
         /// Attempt to get a best candidate after adding the `ScanResult` to the `ScanResultsSet`
         let bestScanResult = scanResultsSet.bestCandidate
-
+        
         /// Set the `boundingBox` (over which the activity indicator is shown) to either be
         /// the best candidate's bounding box, or this one's—if still not avialable
         await MainActor.run {
@@ -98,5 +106,38 @@ class FoodLabelCameraViewModel: ObservableObject {
             foodLabelScanHandler(bestScanResult, image)
             shouldDismiss = true
         }
+    }
+}
+
+extension UIImage {
+    func imageFromSampleBuffer(
+        sampleBuffer: CMSampleBuffer,
+        videoOrientation: AVCaptureVideoOrientation) -> UIImage?
+    {
+        if let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
+            let context = CIContext()
+            var ciImage = CIImage(cvPixelBuffer: imageBuffer)
+            
+            let orientation: Int32
+            switch videoOrientation {
+            case .portrait:
+                orientation = 6
+            case .portraitUpsideDown:
+                orientation = 8
+            case .landscapeRight:
+                orientation = 1
+            case .landscapeLeft:
+                orientation = 3
+            @unknown default:
+                orientation = 6
+            }
+            ciImage = ciImage.oriented(forExifOrientation: orientation)
+            
+            if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
+                return UIImage(cgImage: cgImage)
+            }
+        }
+        
+        return nil
     }
 }
