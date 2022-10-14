@@ -53,8 +53,8 @@ class FoodLabelCameraViewModel: ObservableObject {
             lastScanTime = CFAbsoluteTimeGetCurrent()
             
             
-//            let (scanResult, image) = try await getScanResultAndImage(from: sampleBuffer)
-            let (image, scanResult) = try await getImageAndScanResult(from: sampleBuffer)
+            let (scanResult, image) = try await getScanResultAndImage(from: sampleBuffer)
+//            let (image, scanResult) = try await getImageAndScanResult(from: sampleBuffer)
             await process(scanResult, for: image)
         }
     }
