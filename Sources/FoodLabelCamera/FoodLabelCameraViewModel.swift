@@ -12,7 +12,7 @@ class FoodLabelCameraViewModel: ObservableObject {
     let TimeBeforeFirstScan: Double = 0.5
     let MaximumConcurrentScanTasks = 3
     
-    let scanResultsSet = ScanResultsSet()
+    let scanResultSets = ScanResultSets()
     @Published var foodLabelBoundingBox: CGRect? = nil
     @Published var barcodeBoundingBoxes: [CGRect] = []
     @Published var didSetBestCandidate = false
@@ -52,37 +52,87 @@ class FoodLabelCameraViewModel: ObservableObject {
             /// Set the last scan time
             lastScanTime = CFAbsoluteTimeGetCurrent()
             
-            /// Create the scan task and append it to the array (so we can control how many run concurrently)
-            let scanTask = Task {
-                let scanResult = try await FoodLabelLiveScanner(sampleBuffer: sampleBuffer).scan()
-                return scanResult
-            }
-            scanTasks.append(scanTask)
             
-            /// Get the scan result
-            let scanResult = try await scanTask.value
-            /// Now remove this task from the array to free up a slot for another task
-            scanTasks.removeAll(where: { $0 == scanTask })
-            
-            /// Grab the image from the `CMSampleBuffer` and process it
-//            let image = sampleBuffer.image
-            
-            guard let image = sampleBuffer.image else {
-                //TODO: Throw error here instead
-                fatalError("Couldn't get image")
-            }
-            
+//            let (scanResult, image) = try await getScanResultAndImage(from: sampleBuffer)
+            let (image, scanResult) = try await getImageAndScanResult(from: sampleBuffer)
             await process(scanResult, for: image)
         }
+    }
+    
+    func getScanResultAndImage(from sampleBuffer: CMSampleBuffer) async throws -> (ScanResult, UIImage) {
+        /// Create the scan task and append it to the array (so we can control how many run concurrently)
+        let scanTask = Task {
+            let scanResult = try await FoodLabelLiveScanner(sampleBuffer: sampleBuffer).scan()
+            return scanResult
+        }
+        scanTasks.append(scanTask)
+        
+        var start = CFAbsoluteTimeGetCurrent()
+        
+        /// Get the scan result
+        let scanResult = try await scanTask.value
+
+        print("⏰ scanResult took: \(CFAbsoluteTimeGetCurrent()-start)s")
+        
+        
+        /// Now remove this task from the array to free up a slot for another task
+        scanTasks.removeAll(where: { $0 == scanTask })
+        
+        /// Grab the image from the `CMSampleBuffer` and process it
+//            let image = sampleBuffer.image
+        
+        start = CFAbsoluteTimeGetCurrent()
+
+        guard let image = sampleBuffer.image else {
+            //TODO: Throw error here instead
+            fatalError("Couldn't get image")
+        }
+
+        print("⏰ image took: \(CFAbsoluteTimeGetCurrent()-start)s")
+        print("⏰ ")
+        
+        return (scanResult, image)
+    }
+    
+    func getImageAndScanResult(from sampleBuffer: CMSampleBuffer) async throws -> (UIImage, ScanResult) {
+        var start = CFAbsoluteTimeGetCurrent()
+
+        guard let image = sampleBuffer.image else {
+            //TODO: Throw error here instead
+            fatalError("Couldn't get image")
+        }
+
+        print("⏰ image took: \(CFAbsoluteTimeGetCurrent()-start)s")
+        
+        /// Create the scan task and append it to the array (so we can control how many run concurrently)
+        let scanTask = Task {
+            let scanResult = try await FoodLabelScanner(image: image).scan()
+            return scanResult
+        }
+        scanTasks.append(scanTask)
+        
+        start = CFAbsoluteTimeGetCurrent()
+        
+        /// Get the scan result
+        let scanResult = try await scanTask.value
+
+        print("⏰ scanResult took: \(CFAbsoluteTimeGetCurrent()-start)s")
+        
+        /// Now remove this task from the array to free up a slot for another task
+        scanTasks.removeAll(where: { $0 == scanTask })
+        
+        print("⏰ ")
+        
+        return (image, scanResult)
     }
     
     func process(_ scanResult: ScanResult, for image: UIImage) async {
         
         /// Add this result to the results set
-        scanResultsSet.append(scanResult)
+        scanResultSets.append(scanResult, image: image)
         
-        /// Attempt to get a best candidate after adding the `ScanResult` to the `ScanResultsSet`
-        let bestScanResult = scanResultsSet.bestCandidate
+        /// Attempt to get a best candidate after adding the `ScanResult` to the `scanResultSets`
+        let bestResultSet = scanResultSets.bestCandidate
         
         /// Set the `boundingBox` (over which the activity indicator is shown) to either be
         /// the best candidate's bounding box, or this one's—if still not avialable
@@ -90,12 +140,12 @@ class FoodLabelCameraViewModel: ObservableObject {
             
             
             withAnimation {
-                foodLabelBoundingBox = bestScanResult?.boundingBox ?? scanResult.boundingBox
-                barcodeBoundingBoxes = bestScanResult?.barcodeBoundingBoxes ?? scanResult.barcodeBoundingBoxes
+                foodLabelBoundingBox = bestResultSet?.scanResult.boundingBox ?? scanResult.boundingBox
+                barcodeBoundingBoxes = bestResultSet?.scanResult.barcodeBoundingBoxes ?? scanResult.barcodeBoundingBoxes
             }
             
             /// If we have a best candidate avaiable—and it hasn't already been processed
-            guard let bestScanResult, !didSetBestCandidate
+            guard let bestResultSet, !didSetBestCandidate
             else {
                 return
             }
@@ -105,7 +155,7 @@ class FoodLabelCameraViewModel: ObservableObject {
             
 //            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
             Haptics.successFeedback()
-            foodLabelScanHandler(bestScanResult, image)
+            foodLabelScanHandler(bestResultSet.scanResult, bestResultSet.image)
             shouldDismiss = true
         }
     }

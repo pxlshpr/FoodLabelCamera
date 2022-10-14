@@ -1,23 +1,25 @@
 import SwiftUI
 import FoodLabelScanner
 
-class ScanResultsSet: ObservableObject {
+class ScanResultSets: ObservableObject {
     
-    var array: [ScanResult] = []
+    var array: [ScanResultSet] = []
     var mostFrequentAmounts: [Attribute: (Double, Int)] = [:]
 
-    func append(_ scanResult: ScanResult) {
+    func append(_ scanResult: ScanResult, image: UIImage) {
 //        guard scanResult.hasNutrients else {
 //            return
 //        }
-        array.append(scanResult)
+        let scanResultSet = ScanResultSet(scanResult: scanResult, image: image)
+        array.append(scanResultSet)
     }
     
-    var barcodeCandidate: ScanResult? {
+    var barcodeCandidate: ScanResultSet? {
         /// Return the first `ScanResult` that has no nutrients but barcodes
-        array.first(where: { !$0.hasNutrients && !$0.barcodes.isEmpty })
+        array.first(where: { !$0.scanResult.hasNutrients && !$0.scanResult.barcodes.isEmpty })
     }
-    var bestCandidate: ScanResult? {
+    
+    var bestCandidate: ScanResultSet? {
         
         /// if we have a barcode candidate (barcode with no nutrients)—return that immediately
         if let barcodeCandidate {
@@ -31,7 +33,7 @@ class ScanResultsSet: ObservableObject {
         }
         
         /// for each nutrient, save the most-frequent value across all these results
-        for attribute in withMostNutrients.nutrientAttributes {
+        for attribute in withMostNutrients.scanResult.nutrientAttributes {
             let doubles = array.amounts(for: attribute)
             let mostFrequentWithCount = commonElementsInArrayUsingReduce(doublesArray: doubles)
             mostFrequentAmounts[attribute] = mostFrequentWithCount
@@ -47,7 +49,7 @@ class ScanResultsSet: ObservableObject {
     }
 }
 
-extension ScanResultsSet {
+extension ScanResultSets {
     //TODO: Revisit this
     /// What we were doing here—counting how many times the same `ScanResult` was being received, and then later sorting the results by choosing the latest `ScanResult` that had the most matches. Might be redundant as we're currently waiting as little time as possible before returning.
 //    func bestCandidateAfterAdding(result: ScanResult) -> ScanResultSet? {
