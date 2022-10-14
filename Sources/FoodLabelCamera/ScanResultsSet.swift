@@ -7,13 +7,23 @@ class ScanResultsSet: ObservableObject {
     var mostFrequentAmounts: [Attribute: (Double, Int)] = [:]
 
     func append(_ scanResult: ScanResult) {
-        guard scanResult.hasNutrients else {
-            return
-        }
+//        guard scanResult.hasNutrients else {
+//            return
+//        }
         array.append(scanResult)
     }
     
+    var barcodeCandidate: ScanResult? {
+        /// Return the first `ScanResult` that has no nutrients but barcodes
+        array.first(where: { !$0.hasNutrients && !$0.barcodes.isEmpty })
+    }
     var bestCandidate: ScanResult? {
+        
+        /// if we have a barcode candidate (barcode with no nutrients)—return that immediately
+        if let barcodeCandidate {
+            return barcodeCandidate
+        }
+        
         guard array.count >= 3,
               let withMostNutrients = array.sortedByNutrientsCount.first
         else {

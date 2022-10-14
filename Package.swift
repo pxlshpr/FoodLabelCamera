@@ -15,9 +15,10 @@ let package = Package(
             targets: ["FoodLabelCamera"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.57"),
+        .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.62"),
         .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.30"),
         .package(url: "https://github.com/exyte/ActivityIndicatorView", from: "1.1.0"),
+        .package(url: "https://github.com/yeahdongcn/RSBarcodes_Swift", from: "5.1.1"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -28,6 +29,7 @@ let package = Package(
                 .product(name: "FoodLabelScanner", package: "foodlabelscanner"),
                 .product(name: "ActivityIndicatorView", package: "activityindicatorview"),
                 .product(name: "Camera", package: "swiftuicamera"),
+                .product(name: "RSBarcodes_Swift", package: "rsbarcodes_swift"),
             ]),
         .testTarget(
             name: "FoodLabelCameraTests",

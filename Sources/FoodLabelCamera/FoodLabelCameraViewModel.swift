@@ -13,7 +13,8 @@ class FoodLabelCameraViewModel: ObservableObject {
     let MaximumConcurrentScanTasks = 3
     
     let scanResultsSet = ScanResultsSet()
-    @Published var boundingBox: CGRect? = nil
+    @Published var foodLabelBoundingBox: CGRect? = nil
+    @Published var barcodeBoundingBoxes: [CGRect] = []
     @Published var didSetBestCandidate = false
     @Published var shouldDismiss = false
     
@@ -60,7 +61,6 @@ class FoodLabelCameraViewModel: ObservableObject {
             
             /// Get the scan result
             let scanResult = try await scanTask.value
-            
             /// Now remove this task from the array to free up a slot for another task
             scanTasks.removeAll(where: { $0 == scanTask })
             
@@ -87,8 +87,11 @@ class FoodLabelCameraViewModel: ObservableObject {
         /// Set the `boundingBox` (over which the activity indicator is shown) to either be
         /// the best candidate's bounding box, or this one's—if still not avialable
         await MainActor.run {
+            
+            
             withAnimation {
-                boundingBox = bestScanResult?.boundingBox ?? scanResult.boundingBox
+                foodLabelBoundingBox = bestScanResult?.boundingBox ?? scanResult.boundingBox
+                barcodeBoundingBoxes = bestScanResult?.barcodeBoundingBoxes ?? scanResult.barcodeBoundingBoxes
             }
             
             /// If we have a best candidate avaiable—and it hasn't already been processed
@@ -105,5 +108,13 @@ class FoodLabelCameraViewModel: ObservableObject {
             foodLabelScanHandler(bestScanResult, image)
             shouldDismiss = true
         }
+    }
+}
+
+extension ScanResult {
+    var barcodeBoundingBoxes: [CGRect] {
+        barcodes
+            .map { $0.boundingBox }
+            .filter { $0 != .zero }
     }
 }

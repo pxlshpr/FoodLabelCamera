@@ -47,10 +47,29 @@ public struct FoodLabelCamera: View {
             .environmentObject(cameraViewModel)
     }
     
+
+    var boxesLayer: some View {
+        ZStack {
+            textBoxesLayer
+            barcodeBoxesLayer
+        }
+    }
+    
+    var barcodeBoxesLayer: some View {
+        ForEach(viewModel.barcodeBoundingBoxes.indices, id: \.self) { index in
+            GeometryReader { geometry in
+                boxLayer(
+                    boundingBox: viewModel.barcodeBoundingBoxes[index],
+                    inSize: geometry.size,
+                    color: Color(.label)
+                )
+            }
+        }
+    }
     
     @ViewBuilder
-    var boxesLayer: some View {
-        if let boundingBox = viewModel.boundingBox {
+    var textBoxesLayer: some View {
+        if let boundingBox = viewModel.foodLabelBoundingBox {
             GeometryReader { geometry in
                 boxLayer(
                     boundingBox: boundingBox,
