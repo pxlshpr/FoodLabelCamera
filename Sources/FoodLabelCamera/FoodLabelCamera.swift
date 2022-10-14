@@ -64,8 +64,7 @@ public struct FoodLabelCamera: View {
                     boundingBox: detectedRectangleBoundingBox,
                     inSize: geometry.size,
                     color: Color.primary,
-                    opacity: 0.4,
-                    showActivity: false
+                    opacity: 0.4
                 )
             }
         }
@@ -77,7 +76,9 @@ public struct FoodLabelCamera: View {
                 boxLayer(
                     boundingBox: viewModel.barcodeBoundingBoxes[index],
                     inSize: geometry.size,
-                    color: Color(.label)
+                    color: Color(.label),
+//                    activityType: .equalizer(count: 10)
+                    activityType: .arcs(count: 5, lineWidth: 10)
                 )
             }
         }
@@ -90,18 +91,19 @@ public struct FoodLabelCamera: View {
                 boxLayer(
                     boundingBox: boundingBox,
                     inSize: geometry.size,
-                    color: viewModel.didSetBestCandidate ? .green : Color(.label)
+                    color: viewModel.didSetBestCandidate ? .green : Color(.label),
+                    activityType: .arcs(count: 5, lineWidth: 10)
                 )
             }
         }
     }
     
-    func boxLayer(boundingBox: CGRect, inSize size: CGSize, color: Color, opacity: CGFloat = 0, showActivity: Bool = true) -> some View {
+    func boxLayer(boundingBox: CGRect, inSize size: CGSize, color: Color, opacity: CGFloat = 0, activityType: ActivityIndicatorView.IndicatorType? = nil) -> some View {
         @ViewBuilder
         var overlayView: some View {
-            if showActivity {
+            if let activityType {
 //                ActivityIndicatorView(isVisible: .constant(true), type: .equalizer(count: 6))
-                ActivityIndicatorView(isVisible: .constant(true), type: .arcs(count: 5, lineWidth: 10))
+                ActivityIndicatorView(isVisible: .constant(true), type: activityType)
 //                ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
                     .frame(width: 80, height: 80)
                     .foregroundColor(

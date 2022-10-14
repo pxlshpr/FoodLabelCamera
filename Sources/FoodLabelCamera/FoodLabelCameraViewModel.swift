@@ -42,7 +42,7 @@ class FoodLabelCameraViewModel: ObservableObject {
             }
         } else {
 
-            if CFAbsoluteTimeGetCurrent() - lastHapticTime > 0.05 {
+            if CFAbsoluteTimeGetCurrent() - lastHapticTime > 0.02 {
                 Haptics.selectionFeedback()
                 lastHapticTime = CFAbsoluteTimeGetCurrent()
             }
