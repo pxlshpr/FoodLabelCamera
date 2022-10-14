@@ -9,6 +9,7 @@ class FoodLabelCameraViewModel: ObservableObject {
 
     /// Tweak this if needed, but these current values result in the least dropped frames with the quickest response time on the iPhone 13 Pro Max
     let MinimumTimeBetweenScans = 0.5
+    let TimeBeforeFirstScan: Double = 0.5
     let MaximumConcurrentScanTasks = 3
     
     let scanResultsSet = ScanResultsSet()
@@ -17,21 +18,33 @@ class FoodLabelCameraViewModel: ObservableObject {
     @Published var shouldDismiss = false
 
     var scanTasks: [Task<ScanResult, Error>] = []
-    var lastScanTime: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
-    
+    var lastScanTime: CFAbsoluteTime? = nil
+    var timeBetweenScans: Double
+
     let foodLabelScanHandler: FoodLabelScanHandler
     
     init(foodLabelScanHandler: @escaping FoodLabelScanHandler) {
         self.foodLabelScanHandler = foodLabelScanHandler
+        self.timeBetweenScans = TimeBeforeFirstScan
     }
     
     func processSampleBuffer(_ sampleBuffer: CMSampleBuffer) {
         Task {
-            /// Make sure enough time since the last scan has elapsed, and we're not currently running the maximum allowed number of concurrent scans.
-            let timeElapsed = CFAbsoluteTimeGetCurrent() - self.lastScanTime
-            guard timeElapsed > MinimumTimeBetweenScans,
-                  scanTasks.count < MaximumConcurrentScanTasks
-            else {
+            if let lastScanTime {
+                /// Make sure enough time since the last scan has elapsed, and we're not currently running the maximum allowed number of concurrent scans.
+                let timeElapsed = CFAbsoluteTimeGetCurrent() - lastScanTime
+                guard timeElapsed > timeBetweenScans,
+                      scanTasks.count < MaximumConcurrentScanTasks
+                else {
+                    return
+                }
+                
+                /// Reset this to the minimum time after our first scan
+                timeBetweenScans = MinimumTimeBetweenScans
+                
+            } else {
+                /// Set the last scan time
+                lastScanTime = CFAbsoluteTimeGetCurrent()
                 return
             }
             
