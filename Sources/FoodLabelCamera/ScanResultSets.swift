@@ -21,10 +21,10 @@ class ScanResultSets: ObservableObject {
     
     var bestCandidate: ScanResultSet? {
         
-        /// if we have a barcode candidate (barcode with no nutrients)—return that immediately
-        if let barcodeCandidate {
-            return barcodeCandidate
-        }
+//        /// if we have a barcode candidate (barcode with no nutrients)—return that immediately
+//        if let barcodeCandidate {
+//            return barcodeCandidate
+//        }
         
         guard array.count >= 3,
               let withMostNutrients = array.sortedByNutrientsCount.first

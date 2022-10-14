@@ -17,6 +17,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.63"),
         .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.30"),
+        .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.68"),
         .package(url: "https://github.com/exyte/ActivityIndicatorView", from: "1.1.0"),
         .package(url: "https://github.com/yeahdongcn/RSBarcodes_Swift", from: "5.1.1"),
     ],
@@ -28,6 +29,7 @@ let package = Package(
             dependencies: [
                 .product(name: "FoodLabelScanner", package: "foodlabelscanner"),
                 .product(name: "ActivityIndicatorView", package: "activityindicatorview"),
+                .product(name: "VisionSugar", package: "visionsugar"),
                 .product(name: "Camera", package: "swiftuicamera"),
                 .product(name: "RSBarcodes_Swift", package: "rsbarcodes_swift"),
             ]),

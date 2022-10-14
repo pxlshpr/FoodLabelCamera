@@ -29,6 +29,7 @@ public struct FoodLabelCamera: View {
     public var body: some View {
         ZStack {
             cameraLayer
+            detectedRectanglesLayer
             GeometryReader { geometry in
                 boxesLayer
                     .edgesIgnoringSafeArea(.bottom)
@@ -54,7 +55,22 @@ public struct FoodLabelCamera: View {
             barcodeBoxesLayer
         }
     }
-    
+
+    @ViewBuilder
+    var detectedRectanglesLayer: some View {
+        if let detectedRectangleBoundingBox = viewModel.detectedRectangleBoundingBox {
+            GeometryReader { geometry in
+                boxLayer(
+                    boundingBox: detectedRectangleBoundingBox,
+                    inSize: geometry.size,
+                    color: Color.primary,
+                    opacity: 0.4,
+                    showActivity: false
+                )
+            }
+        }
+    }
+
     var barcodeBoxesLayer: some View {
         ForEach(viewModel.barcodeBoundingBoxes.indices, id: \.self) { index in
             GeometryReader { geometry in
@@ -80,7 +96,20 @@ public struct FoodLabelCamera: View {
         }
     }
     
-    func boxLayer(boundingBox: CGRect, inSize size: CGSize, color: Color) -> some View {
+    func boxLayer(boundingBox: CGRect, inSize size: CGSize, color: Color, opacity: CGFloat = 0, showActivity: Bool = true) -> some View {
+        @ViewBuilder
+        var overlayView: some View {
+            if showActivity {
+//                ActivityIndicatorView(isVisible: .constant(true), type: .equalizer(count: 6))
+                ActivityIndicatorView(isVisible: .constant(true), type: .arcs(count: 5, lineWidth: 10))
+//                ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                    .frame(width: 80, height: 80)
+                    .foregroundColor(
+                        Color.accentColor.opacity(0.7)
+                    )
+            }
+        }
+        
         var box: some View {
             RoundedRectangle(cornerRadius: 3)
                 .foregroundStyle(
@@ -88,16 +117,11 @@ public struct FoodLabelCamera: View {
                         .inner(color: .black, radius: 3)
                     )
                 )
-                .opacity(0.4)
-                .opacity(0)
+                .opacity(opacity)
                 .frame(width: boundingBox.rectForSize(size).width,
                        height: boundingBox.rectForSize(size).height)
             
-                .overlay(
-                    ActivityIndicatorView(isVisible: .constant(true), type: .equalizer(count: 6))
-                        .frame(width: 80, height: 80)
-                        .foregroundColor(.accentColor)
-                )
+                .overlay(overlayView)
                 .shadow(radius: 3, x: 0, y: 2)
         }
         
