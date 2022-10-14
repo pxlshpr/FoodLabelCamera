@@ -67,10 +67,8 @@ class FoodLabelCameraViewModel: ObservableObject {
             /// Grab the image from the `CMSampleBuffer` and process it
 //            let image = sampleBuffer.image
             
-            guard let image = UIImage().imageFromSampleBuffer(
-                sampleBuffer: sampleBuffer,
-                videoOrientation: .portrait
-            ) else {
+            guard let image = sampleBuffer.image else {
+                //TODO: Throw error here instead
                 fatalError("Couldn't get image")
             }
             
@@ -102,42 +100,10 @@ class FoodLabelCameraViewModel: ObservableObject {
             /// Set the `didSetBestCandidate` flag so that further invocations of these (that may happen a split-second later) don't override it
             didSetBestCandidate = true
             
+//            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
             Haptics.successFeedback()
             foodLabelScanHandler(bestScanResult, image)
             shouldDismiss = true
         }
-    }
-}
-
-extension UIImage {
-    func imageFromSampleBuffer(
-        sampleBuffer: CMSampleBuffer,
-        videoOrientation: AVCaptureVideoOrientation) -> UIImage?
-    {
-        if let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
-            let context = CIContext()
-            var ciImage = CIImage(cvPixelBuffer: imageBuffer)
-            
-            let orientation: Int32
-            switch videoOrientation {
-            case .portrait:
-                orientation = 6
-            case .portraitUpsideDown:
-                orientation = 8
-            case .landscapeRight:
-                orientation = 1
-            case .landscapeLeft:
-                orientation = 3
-            @unknown default:
-                orientation = 6
-            }
-            ciImage = ciImage.oriented(forExifOrientation: orientation)
-            
-            if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
-                return UIImage(cgImage: cgImage)
-            }
-        }
-        
-        return nil
     }
 }
