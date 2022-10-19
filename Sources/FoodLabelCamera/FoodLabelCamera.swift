@@ -8,10 +8,8 @@ public struct FoodLabelCamera: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var cameraViewModel: CameraViewModel
     @StateObject var viewModel: FoodLabelCameraViewModel
-    let foodLabelScanHandler: FoodLabelScanHandler
     
     public init(foodLabelScanHandler: @escaping FoodLabelScanHandler) {
-        self.foodLabelScanHandler = foodLabelScanHandler
         
         let viewModel = FoodLabelCameraViewModel(foodLabelScanHandler: foodLabelScanHandler)
         _viewModel = StateObject(wrappedValue: viewModel)
