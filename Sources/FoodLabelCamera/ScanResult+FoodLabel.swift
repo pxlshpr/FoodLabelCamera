@@ -1,5 +1,5 @@
 import FoodLabel
-import PrepUnits
+import PrepDataTypes
 import FoodLabelScanner
 
 public class ScanResultModel {

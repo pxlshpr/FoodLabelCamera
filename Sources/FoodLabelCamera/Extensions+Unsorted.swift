@@ -1,6 +1,6 @@
 import Foundation
 import VisionSugar
-import PrepUnits
+import PrepDataTypes
 import FoodLabelScanner
 
 extension Array where Element == ScanResultSet {
