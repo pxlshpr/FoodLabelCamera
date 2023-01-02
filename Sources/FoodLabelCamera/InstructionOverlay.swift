@@ -22,7 +22,7 @@ struct InstructionsOverlay: View {
                 .padding(.vertical, 10)
             startButton
         }
-        .padding(.top, 65)
+        .padding(.top, 45)
         .padding(.bottom, 54)
     }
     
@@ -37,15 +37,15 @@ struct InstructionsOverlay: View {
             .resizable()
             .aspectRatio(contentMode: .fit)
 //            .frame(height: 480)
-            .opacity(0.6)
+            .opacity(0.2)
             .blur(radius: 0)
         .padding(.horizontal, 20)
         .padding(.vertical, 30)
         .background(
             ZStack {
-//                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-//                        .foregroundStyle(.ultraThinMaterial)
-//                        .opacity(1)
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .foregroundStyle(.ultraThinMaterial)
+                    .opacity(0.2)
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .trim(from: 0.13, to: 0.19)
                     .stroke(Color.accentColor, lineWidth: 10)
