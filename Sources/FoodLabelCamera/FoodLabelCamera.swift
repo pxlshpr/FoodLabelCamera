@@ -16,6 +16,7 @@ public struct FoodLabelCamera: View {
         
         let cameraViewModel = CameraViewModel(
             mode: .scan,
+            showDismissButton: true,
             showFlashButton: false,
             showTorchButton: true,
             showPhotoPickerButton: false,
