@@ -16,6 +16,7 @@ public struct FoodLabelCamera: View {
         
         let cameraViewModel = CameraViewModel(
             mode: .scan,
+            shouldShowScanOverlay: false,
             showDismissButton: true,
             showFlashButton: false,
             showTorchButton: true,
@@ -28,6 +29,9 @@ public struct FoodLabelCamera: View {
     public var body: some View {
         ZStack {
             cameraLayer
+            if !viewModel.started {
+                InstructionsOverlay(tappedStart: tappedStart)
+            }
             detectedRectanglesLayer
             GeometryReader { geometry in
                 boxesLayer
@@ -43,6 +47,14 @@ public struct FoodLabelCamera: View {
             if newShouldDismiss {
                 dismiss()
             }
+        }
+    }
+    
+    func tappedStart() {
+        Haptics.feedback(style: .heavy)
+        withAnimation {
+            cameraViewModel.shouldShowScanOverlay = true
+            viewModel.started = true
         }
     }
     

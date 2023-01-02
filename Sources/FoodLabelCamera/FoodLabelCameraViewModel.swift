@@ -34,7 +34,13 @@ class FoodLabelCameraViewModel: ObservableObject {
     
     @Published var detectedRectangleBoundingBox: CGRect? = nil
     
+    @Published var started: Bool = false
+    
     func processSampleBuffer(_ sampleBuffer: CMSampleBuffer) {
+        
+        guard started else {
+            return
+        }
         
         if !scanResultSets.array.isEmpty {
             withAnimation {
@@ -51,7 +57,7 @@ class FoodLabelCameraViewModel: ObservableObject {
                 
                 try! sampleBuffer.rectangleObservations { observations in
                     if !observations.isEmpty {
-                        print("🤓 There are: \(observations.count) rectangles")
+//                        print("🤓 There are: \(observations.count) rectangles")
                         Haptics.selectionFeedback()
                         withAnimation {
                             self.detectedRectangleBoundingBox = observations.first?.boundingBox
@@ -104,7 +110,7 @@ class FoodLabelCameraViewModel: ObservableObject {
         /// Get the scan result
         let scanResult = try await scanTask.value
         
-        print("⏰ scanResult took: \(CFAbsoluteTimeGetCurrent()-start)s")
+//        print("⏰ scanResult took: \(CFAbsoluteTimeGetCurrent()-start)s")
         
         
         /// Now remove this task from the array to free up a slot for another task
@@ -120,8 +126,7 @@ class FoodLabelCameraViewModel: ObservableObject {
             fatalError("Couldn't get image")
         }
         
-        print("⏰ image took: \(CFAbsoluteTimeGetCurrent()-start)s")
-        print("⏰ ")
+//        print("⏰ image took: \(CFAbsoluteTimeGetCurrent()-start)s")
         
         return (scanResult, image)
     }
@@ -134,7 +139,7 @@ class FoodLabelCameraViewModel: ObservableObject {
             fatalError("Couldn't get image")
         }
         
-        print("⏰ image took: \(CFAbsoluteTimeGetCurrent()-start)s")
+//        print("⏰ image took: \(CFAbsoluteTimeGetCurrent()-start)s")
         
         /// Create the scan task and append it to the array (so we can control how many run concurrently)
         let scanTask = Task {
@@ -148,12 +153,12 @@ class FoodLabelCameraViewModel: ObservableObject {
         /// Get the scan result
         let scanResult = try await scanTask.value
         
-        print("⏰ scanResult took: \(CFAbsoluteTimeGetCurrent()-start)s")
+//        print("⏰ scanResult took: \(CFAbsoluteTimeGetCurrent()-start)s")
         
         /// Now remove this task from the array to free up a slot for another task
         scanTasks.removeAll(where: { $0 == scanTask })
         
-        print("⏰ ")
+//        print("⏰ ")
         
         return (image, scanResult)
     }
@@ -175,7 +180,7 @@ class FoodLabelCameraViewModel: ObservableObject {
                 foodLabelBoundingBox = bestResultSet?.scanResult.boundingBox ?? scanResult.boundingBox
                 barcodeBoundingBoxes = bestResultSet?.scanResult.barcodeBoundingBoxes ?? scanResult.barcodeBoundingBoxes
             }
-            print("🥋 foodLabelBoundingBox is: \(foodLabelBoundingBox!)")
+//            print("🥋 foodLabelBoundingBox is: \(foodLabelBoundingBox!)")
             
             /// If we have a best candidate avaiable—and it hasn't already been processed
             guard let bestResultSet, !didSetBestCandidate

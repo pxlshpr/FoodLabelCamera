@@ -17,7 +17,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.82"),
-        .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.37"),
+        .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.39"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.30"),
         .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.75"),
         .package(url: "https://github.com/exyte/ActivityIndicatorView", from: "1.1.0"),
