@@ -39,6 +39,11 @@ public struct FoodLabelCamera: View {
                 dismiss()
             }
         }
+        .onChange(of: cameraViewModel.shouldDismiss) { newShouldDismiss in
+            if newShouldDismiss {
+                dismiss()
+            }
+        }
     }
     
     //MARK: - Layers
