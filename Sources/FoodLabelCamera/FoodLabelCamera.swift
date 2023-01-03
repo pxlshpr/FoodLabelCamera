@@ -27,10 +27,12 @@ public struct FoodLabelCamera: View {
         _cameraViewModel = StateObject(wrappedValue: cameraViewModel)
     }
     
+    @State var hasAppeared = false
+    
     public var body: some View {
         ZStack {
             cameraLayer
-            if !viewModel.started {
+            if !viewModel.started, hasAppeared {
                 InstructionsOverlay(tappedStart: tappedStart)
                     .zIndex(10)
                     .transition(.opacity)
@@ -39,6 +41,13 @@ public struct FoodLabelCamera: View {
             GeometryReader { geometry in
                 boxesLayer
                     .edgesIgnoringSafeArea(.bottom)
+            }
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                withAnimation {
+                    hasAppeared = true
+                }
             }
         }
         .onChange(of: viewModel.shouldDismiss) { newShouldDismiss in
