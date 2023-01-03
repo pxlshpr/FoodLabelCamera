@@ -6,7 +6,7 @@ struct InstructionsOverlay: View {
     
     var body: some View {
         ZStack {
-//            dummyBackground
+            dummyBackground
 //            zstackBased
             vstackBased
         }
@@ -22,7 +22,7 @@ struct InstructionsOverlay: View {
                 .padding(.vertical, 10)
             startButton
         }
-        .padding(.top, 45)
+        .padding(.top, 58)
         .padding(.bottom, 54)
     }
     
@@ -33,33 +33,41 @@ struct InstructionsOverlay: View {
     }
     
     var label: some View {
-        Image(uiImage: AssetImage(named: "label")!)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-//            .frame(height: 480)
-            .opacity(0.2)
-            .blur(radius: 0)
-        .padding(.horizontal, 20)
-        .padding(.vertical, 30)
-        .background(
-            ZStack {
+        var background: some View {
+            var strokeForeground: some ShapeStyle {
+//                Color.accentColor.opacity(0.5)
+//                Material.regularMaterial
+                Material.thinMaterial
+            }
+            
+            return ZStack {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .foregroundStyle(.ultraThinMaterial)
                     .opacity(0.2)
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .trim(from: 0.13, to: 0.19)
-                    .stroke(Color.accentColor, lineWidth: 10)
+                    .stroke(strokeForeground, lineWidth: 10)
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .trim(from: 0.31, to: 0.37)
-                    .stroke(Color.accentColor, lineWidth: 10)
+                    .stroke(strokeForeground, lineWidth: 10)
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .trim(from: 0.63, to: 0.69)
-                    .stroke(Color.accentColor, lineWidth: 10)
+                    .stroke(strokeForeground, lineWidth: 10)
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .trim(from: 0.81, to: 0.87)
-                    .stroke(Color.accentColor, lineWidth: 10)
+                    .stroke(strokeForeground, lineWidth: 10)
             }
-        )
+        }
+        return Image(uiImage: AssetImage(named: "label")!)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .opacity(0.2)
+            .blur(radius: 0)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 30)
+            .background(
+                background
+            )
     }
     
     var instructionOne: some View {
