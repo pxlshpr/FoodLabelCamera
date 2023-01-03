@@ -6,7 +6,7 @@ struct InstructionsOverlay: View {
     
     var body: some View {
         ZStack {
-            dummyBackground
+//            dummyBackground
 //            zstackBased
             vstackBased
         }
