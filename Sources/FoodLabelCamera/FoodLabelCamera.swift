@@ -31,6 +31,7 @@ public struct FoodLabelCamera: View {
     
     public var body: some View {
         ZStack {
+            Color.black
             cameraLayer
                 .opacity(hasAppeared ? 1 : 0)
             if !viewModel.started {
@@ -45,7 +46,7 @@ public struct FoodLabelCamera: View {
             }
         }
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 withAnimation {
                     hasAppeared = true
                 }
