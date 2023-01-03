@@ -35,7 +35,7 @@ public struct FoodLabelCamera: View {
                 cameraLayer
                     .transition(.opacity)
             }
-            if !viewModel.started {
+            if !viewModel.started, hasAppeared {
                 InstructionsOverlay(tappedStart: tappedStart)
                     .zIndex(10)
                     .transition(.opacity)
