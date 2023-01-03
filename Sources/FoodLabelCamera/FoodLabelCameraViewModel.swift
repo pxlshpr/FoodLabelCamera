@@ -194,7 +194,7 @@ class FoodLabelCameraViewModel: ObservableObject {
             //            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
             Haptics.successFeedback()
             foodLabelScanHandler(bestResultSet.scanResult, bestResultSet.image)
-            shouldDismiss = true
+//            shouldDismiss = true
         }
     }
 }
