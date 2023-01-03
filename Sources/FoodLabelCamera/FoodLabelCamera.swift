@@ -31,8 +31,11 @@ public struct FoodLabelCamera: View {
     
     public var body: some View {
         ZStack {
-            cameraLayer
-            if !viewModel.started, hasAppeared {
+            if hasAppeared {
+                cameraLayer
+                    .transition(.opacity)
+            }
+            if !viewModel.started {
                 InstructionsOverlay(tappedStart: tappedStart)
                     .zIndex(10)
                     .transition(.opacity)
@@ -44,7 +47,7 @@ public struct FoodLabelCamera: View {
             }
         }
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 withAnimation {
                     hasAppeared = true
                 }
