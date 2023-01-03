@@ -27,14 +27,35 @@ class FoodLabelCameraViewModel: ObservableObject {
 
     let foodLabelScanHandler: FoodLabelScanHandler
     
-    init(foodLabelScanHandler: @escaping FoodLabelScanHandler) {
+    let mockData: (ScanResult, UIImage)?
+    
+    init(
+        mockData: (ScanResult, UIImage)? = nil,
+        foodLabelScanHandler: @escaping FoodLabelScanHandler
+    ) {
         self.foodLabelScanHandler = foodLabelScanHandler
         self.timeBetweenScans = TimeBeforeFirstScan
+        self.mockData = mockData
     }
-    
+
     @Published var detectedRectangleBoundingBox: CGRect? = nil
     
     @Published var started: Bool = false
+    
+    var isMock: Bool {
+        mockData != nil
+    }
+    
+    func simulateScan() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            guard let mockData = self.mockData else {
+                self.shouldDismiss = true
+                return
+            }
+            Haptics.successFeedback()
+            self.foodLabelScanHandler(mockData.0, mockData.1)
+        }
+    }
     
     func processSampleBuffer(_ sampleBuffer: CMSampleBuffer) {
         

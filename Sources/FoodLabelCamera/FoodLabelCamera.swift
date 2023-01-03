@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftHaptics
 import ActivityIndicatorView
 import Camera
+import FoodLabelScanner
 
 public struct FoodLabelCamera: View {
 
@@ -9,9 +10,9 @@ public struct FoodLabelCamera: View {
     @StateObject var cameraViewModel: CameraViewModel
     @StateObject var viewModel: FoodLabelCameraViewModel
     
-    public init(foodLabelScanHandler: @escaping FoodLabelScanHandler) {
+    public init(mockData: (ScanResult, UIImage)? = nil, foodLabelScanHandler: @escaping FoodLabelScanHandler) {
         
-        let viewModel = FoodLabelCameraViewModel(foodLabelScanHandler: foodLabelScanHandler)
+        let viewModel = FoodLabelCameraViewModel(mockData: mockData, foodLabelScanHandler: foodLabelScanHandler)
         _viewModel = StateObject(wrappedValue: viewModel)
         
         let cameraViewModel = CameraViewModel(
@@ -31,6 +32,8 @@ public struct FoodLabelCamera: View {
             cameraLayer
             if !viewModel.started {
                 InstructionsOverlay(tappedStart: tappedStart)
+                    .zIndex(10)
+                    .transition(.opacity)
             }
             detectedRectanglesLayer
             GeometryReader { geometry in
@@ -51,11 +54,19 @@ public struct FoodLabelCamera: View {
     }
     
     func tappedStart() {
+#if targetEnvironment(simulator)
+        withAnimation {
+            cameraViewModel.shouldShowScanOverlay = true
+            viewModel.started = true
+        }
+        viewModel.simulateScan()
+#else
         Haptics.feedback(style: .heavy)
         withAnimation {
             cameraViewModel.shouldShowScanOverlay = true
             viewModel.started = true
         }
+#endif
     }
     
     //MARK: - Layers
