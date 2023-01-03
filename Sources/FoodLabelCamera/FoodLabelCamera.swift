@@ -46,11 +46,11 @@ public struct FoodLabelCamera: View {
             }
         }
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                withAnimation {
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//                withAnimation {
                     hasAppeared = true
-                }
-            }
+//                }
+//            }
         }
         .onChange(of: viewModel.shouldDismiss) { newShouldDismiss in
             if newShouldDismiss {
